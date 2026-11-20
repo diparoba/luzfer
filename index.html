@@ -1,16 +1,544 @@
 <!DOCTYPE html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LUZFER — Asistente de Estudio y Enfoque</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-  </head>
-  <body class="bg-[#FAF8FF] dark:bg-[#0F0A1C] text-[#1E1B4B] dark:text-[#F5F3FF] antialiased selection:bg-brand-300 selection:text-brand-950 font-sans transition-colors duration-200">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <title>LUZFER — Asistente de Estudio y Enfoque</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    h1, h2, h3, h4, .font-display { font-family: 'Poppins', sans-serif; }
+  </style>
+</head>
+<body class="bg-[#FAF8FF] dark:bg-[#0F0A1C] text-[#1E1B4B] dark:text-[#F5F3FF] antialiased h-full flex flex-col selection:bg-purple-200">
+
+  <!-- Desktop Download Bar -->
+  <div class="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-950 text-white px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs border-b border-purple-800">
+    <div class="flex items-center gap-2">
+      <span class="text-emerald-300 font-extrabold text-sm">💻 DESCARGA PARA ESCRITORIO (Windows 10/11):</span>
+      <span class="text-purple-200 hidden md:inline">Descarga el código fuente completo o el instalador para tu PC</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="https://github.com/diparoba/luzfer/archive/refs/heads/main.zip" target="_blank" class="px-3.5 py-1.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-purple-950 font-extrabold flex items-center gap-1.5 transition shadow-sm">
+        <span>⬇️ Descargar Código .zip (GitHub)</span>
+      </a>
+      <a href="https://github.com/diparoba/luzfer/actions" target="_blank" class="px-3.5 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white font-bold flex items-center gap-1.5 transition">
+        <span>📦 Ver Compilación .exe (GitHub Actions)</span>
+      </a>
+      <button onclick="descargarHtmlOffline()" class="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold flex items-center gap-1.5 transition">
+        <span>💾 Guardar App en mi Escritorio (.html)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Top App Bar -->
+  <header class="bg-white/90 dark:bg-[#1A102F]/90 backdrop-blur-md border-b border-purple-100 dark:border-purple-900/40 px-6 py-3 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#5B21B6] to-[#7C3AED] flex items-center justify-center text-white shadow-md shadow-purple-500/20 font-extrabold text-lg">
+        💜
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="font-display font-extrabold text-lg tracking-tight text-purple-950 dark:text-white">LUZFER</span>
+          <span class="text-[10px] bg-purple-100 dark:bg-purple-950/80 text-purple-800 dark:text-purple-300 px-2 py-0.5 rounded-full font-bold">10° B • Paulo VI</span>
+        </div>
+        <p class="text-[11px] text-gray-500 dark:text-gray-400 font-medium">Asistente personal para Luz Fernanda (2026-2027)</p>
+      </div>
+    </div>
+
+    <!-- Mini player & status pill -->
+    <div class="flex items-center gap-3">
+      <!-- Spotify pill -->
+      <div class="hidden sm:flex items-center gap-2.5 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/50 px-3.5 py-1.5 rounded-full text-xs">
+        <span class="text-base animate-pulse">👑</span>
+        <div class="flex flex-col">
+          <span class="font-bold text-gray-800 dark:text-white" id="currentSongTitle">Propuesta Indecente</span>
+          <span class="text-[10px] text-purple-600 dark:text-purple-300 font-medium" id="currentSongArtist">Romeo Santos</span>
+        </div>
+        <button onclick="toggleMusic()" class="w-6 h-6 rounded-full bg-purple-700 text-white flex items-center justify-center text-xs ml-1" id="musicPlayBtn">
+          ⏸
+        </button>
+      </div>
+
+      <!-- Focus Mode Button -->
+      <button onclick="toggleFocus()" id="focusBadge" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition shadow-xs bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-200 border border-purple-300">
+        <span id="focusIcon">🛡️</span>
+        <span id="focusText">Activar Enfoque</span>
+      </button>
+
+      <!-- Theme Switch -->
+      <button onclick="toggleDark()" class="w-8 h-8 rounded-full bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800/50 flex items-center justify-center text-sm">
+        🌙
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="flex-1 flex overflow-hidden">
+    <!-- Sidebar Navigation -->
+    <aside class="w-60 bg-white dark:bg-[#1A102F] border-r border-purple-100 dark:border-purple-900/40 flex flex-col justify-between p-3 shrink-0">
+      <nav class="space-y-1">
+        <button onclick="switchTab('planner')" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-purple-950 dark:text-white bg-purple-700 text-white shadow-xs" data-tab="planner">
+          <span class="flex items-center gap-2.5">📅 Planner & Horario</span>
+        </button>
+        <button onclick="switchTab('tarde')" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-950/40" data-tab="tarde">
+          <span class="flex items-center gap-2.5">⏰ Tarde Inteligente</span>
+          <span class="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full">Auto</span>
+        </button>
+        <button onclick="switchTab('tareas')" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-950/40" data-tab="tareas">
+          <span class="flex items-center gap-2.5">✅ Tareas & Deberes</span>
+        </button>
+        <button onclick="switchTab('acreditaciones')" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-950/40" data-tab="acreditaciones">
+          <span class="flex items-center gap-2.5">🏆 Acreditaciones</span>
+          <span class="text-[9px] bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded-full">72%</span>
+        </button>
+        <button onclick="switchTab('simulador')" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-950/40" data-tab="simulador">
+          <span class="flex items-center gap-2.5">📝 Simulador de Examen</span>
+        </button>
+        <button onclick="switchTab('flashcards')" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-950/40" data-tab="flashcards">
+          <span class="flex items-center gap-2.5">🗂️ Flashcards SM-2</span>
+        </button>
+        <button onclick="switchTab('musica')" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-950/40" data-tab="musica">
+          <span class="flex items-center gap-2.5">🎧 Mi Música & Spotify</span>
+        </button>
+        <button onclick="switchTab('enfoque')" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-950/40" data-tab="enfoque">
+          <span class="flex items-center gap-2.5">🛡️ Modo Enfoque</span>
+        </button>
+      </nav>
+
+      <!-- Profile Bottom -->
+      <div class="p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900/30 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center">
+          LF
+        </div>
+        <div class="overflow-hidden">
+          <p class="text-xs font-bold text-gray-800 dark:text-white truncate">Luz Fernanda</p>
+          <p class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            10mo 'B' Paulo VI
+          </p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Dynamic Content Area -->
+    <main class="flex-1 overflow-y-auto p-6 space-y-6">
+
+      <!-- Saludo Personalizado -->
+      <div class="p-6 rounded-3xl bg-gradient-to-r from-[#5B21B6] via-[#6D28D9] to-indigo-950 text-white shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <span class="text-[11px] font-bold text-emerald-300 uppercase tracking-wider bg-white/10 px-3 py-1 rounded-full">
+            Año Lectivo 2026-2027 • Paulo VI
+          </span>
+          <h2 class="text-2xl font-display font-extrabold mt-1">
+            ¡Hola, Luz Fernanda! 💜
+          </h2>
+          <p class="text-xs text-purple-100 max-w-xl mt-1 leading-relaxed">
+            Tu asistente de estudio y enfoque está listo. Puedes usarlo en la web o descargarlo a tu escritorio para usarlo sin conexión.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2 self-end md:self-auto">
+          <div class="px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10 text-center">
+            <span class="text-xs text-purple-200 block font-semibold">Racha de Estudio</span>
+            <span class="text-lg font-display font-extrabold text-emerald-300">🔥 5 Días</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 1: PLANNER & HORARIO -->
+      <section id="tab-planner" class="space-y-6 tab-content">
+        <!-- Mochila para Mañana Banner -->
+        <div class="p-4 rounded-2xl bg-gradient-to-r from-purple-900 to-indigo-900 text-white shadow-sm flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">🎒</span>
+            <div>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-300">Mochila para Mañana (¿Qué materias tengo?)</h4>
+              <p class="text-xs text-purple-100 mt-0.5">
+                Alista cuadernos y libros de: <strong class="text-white">Matemática, Lengua, Inglés, Maker Lab - D</strong>.
+              </p>
+            </div>
+          </div>
+          <span class="text-[11px] bg-white/20 px-3 py-1 rounded-full font-bold">Viernes</span>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <h3 class="font-display font-bold text-lg text-purple-950 dark:text-white">Horario Semanal de 10mo 'B' (Paulo VI)</h3>
+          <span class="text-xs text-gray-500">Recreo fijo de 10:30 a 11:10</span>
+        </div>
+
+        <!-- Weekly Schedule Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
+          <!-- LUNES -->
+          <div class="bg-white dark:bg-[#1A102F] p-3 rounded-2xl border border-purple-100 dark:border-purple-900/40 space-y-2">
+            <div class="font-extrabold text-purple-900 dark:text-purple-200 border-b pb-1.5">Lunes</div>
+            <div class="p-2 rounded-xl bg-purple-50 text-purple-800 font-bold border-l-4 border-purple-600">07:00 Inglés</div>
+            <div class="p-2 rounded-xl bg-pink-50 text-pink-800 font-bold border-l-4 border-pink-500">07:50 Lengua (Bloque Doble)</div>
+            <div class="p-2 rounded-xl bg-orange-50 text-orange-800 font-bold border-l-4 border-orange-500">09:10 Ed. Física</div>
+            <div class="p-2 rounded-xl bg-amber-50 text-amber-800 font-bold border-l-4 border-amber-500">09:50 E. Sociales</div>
+            <div class="p-1.5 bg-yellow-100/60 text-yellow-900 font-bold rounded-lg text-center text-[10px]">🍎 10:30 Recreo</div>
+            <div class="p-2 rounded-xl bg-indigo-50 text-indigo-800 font-bold border-l-4 border-indigo-600">11:10 Matemática (Doble)</div>
+          </div>
+
+          <!-- MARTES -->
+          <div class="bg-white dark:bg-[#1A102F] p-3 rounded-2xl border border-purple-100 dark:border-purple-900/40 space-y-2">
+            <div class="font-extrabold text-purple-900 dark:text-purple-200 border-b pb-1.5">Martes</div>
+            <div class="p-2 rounded-xl bg-fuchsia-50 text-fuchsia-800 font-bold border-l-4 border-fuchsia-600">07:00 D. A. Musical</div>
+            <div class="p-2 rounded-xl bg-cyan-50 text-cyan-800 font-bold border-l-4 border-cyan-500">07:50 Maker Lab - D</div>
+            <div class="p-2 rounded-xl bg-purple-50 text-purple-800 font-bold border-l-4 border-purple-600">08:30 Inglés</div>
+            <div class="p-2 rounded-xl bg-amber-50 text-amber-800 font-bold border-l-4 border-amber-500">09:10 E. Sociales</div>
+            <div class="p-2 rounded-xl bg-emerald-50 text-emerald-800 font-bold border-l-4 border-emerald-500">09:50 C. Naturales</div>
+            <div class="p-1.5 bg-yellow-100/60 text-yellow-900 font-bold rounded-lg text-center text-[10px]">🍎 10:30 Recreo</div>
+            <div class="p-2 rounded-xl bg-indigo-50 text-indigo-800 font-bold border-l-4 border-indigo-600">11:10 Matemática</div>
+            <div class="p-2 rounded-xl bg-pink-50 text-pink-800 font-bold border-l-4 border-pink-500">11:50 Lengua</div>
+          </div>
+
+          <!-- MIÉRCOLES -->
+          <div class="bg-white dark:bg-[#1A102F] p-3 rounded-2xl border border-purple-100 dark:border-purple-900/40 space-y-2">
+            <div class="font-extrabold text-purple-900 dark:text-purple-200 border-b pb-1.5">Miércoles</div>
+            <div class="p-2 rounded-xl bg-orange-50 text-orange-800 font-bold border-l-4 border-orange-500">07:00 Ed. Física</div>
+            <div class="p-2 rounded-xl bg-purple-50 text-purple-800 font-bold border-l-4 border-purple-600">07:50 Inglés (Doble)</div>
+            <div class="p-2 rounded-xl bg-green-50 text-green-800 font-bold border-l-4 border-green-600">09:10 Ed. Sostenible</div>
+            <div class="p-2 rounded-xl bg-sky-50 text-sky-800 font-bold border-l-4 border-sky-500">09:50 Maker Lab - B</div>
+            <div class="p-1.5 bg-yellow-100/60 text-yellow-900 font-bold rounded-lg text-center text-[10px]">🍎 10:30 Recreo</div>
+            <div class="p-2 rounded-xl bg-indigo-50 text-indigo-800 font-bold border-l-4 border-indigo-600">11:10 Matemática</div>
+            <div class="p-2 rounded-xl bg-cyan-50 text-cyan-800 font-bold border-l-4 border-cyan-500">11:50 Maker Lab - D</div>
+          </div>
+
+          <!-- JUEVES -->
+          <div class="bg-white dark:bg-[#1A102F] p-3 rounded-2xl border border-purple-100 dark:border-purple-900/40 space-y-2">
+            <div class="font-extrabold text-purple-900 dark:text-purple-200 border-b pb-1.5">Jueves</div>
+            <div class="p-2 rounded-xl bg-indigo-50 text-indigo-800 font-bold border-l-4 border-indigo-600">07:00 Matemática</div>
+            <div class="p-2 rounded-xl bg-rose-50 text-rose-800 font-bold border-l-4 border-rose-500">07:50 An. Lectura</div>
+            <div class="p-2 rounded-xl bg-amber-50 text-amber-800 font-bold border-l-4 border-amber-500">08:30 E. Sociales</div>
+            <div class="p-2 rounded-xl bg-pink-50 text-pink-800 font-bold border-l-4 border-pink-500">09:10 Lengua</div>
+            <div class="p-2 rounded-xl bg-slate-50 text-slate-800 font-bold border-l-4 border-slate-500">09:50 Cívica Et. Int.</div>
+            <div class="p-1.5 bg-yellow-100/60 text-yellow-900 font-bold rounded-lg text-center text-[10px]">🍎 10:30 Recreo</div>
+            <div class="p-2 rounded-xl bg-emerald-50 text-emerald-800 font-bold border-l-4 border-emerald-500">11:10 C. Naturales (Doble)</div>
+          </div>
+
+          <!-- VIERNES -->
+          <div class="bg-white dark:bg-[#1A102F] p-3 rounded-2xl border border-purple-100 dark:border-purple-900/40 space-y-2">
+            <div class="font-extrabold text-purple-900 dark:text-purple-200 border-b pb-1.5">Viernes</div>
+            <div class="p-2 rounded-xl bg-purple-50 text-purple-800 font-bold border-l-4 border-purple-600">07:00 Inglés</div>
+            <div class="p-2 rounded-xl bg-pink-50 text-pink-800 font-bold border-l-4 border-pink-500">07:50 Lengua (Doble)</div>
+            <div class="p-2 rounded-xl bg-violet-50 text-violet-800 font-bold border-l-4 border-violet-500">09:10 Or. Vocacional</div>
+            <div class="p-2 rounded-xl bg-teal-50 text-teal-800 font-bold border-l-4 border-teal-500">09:50 A. I. A.</div>
+            <div class="p-1.5 bg-yellow-100/60 text-yellow-900 font-bold rounded-lg text-center text-[10px]">🍎 10:30 Recreo</div>
+            <div class="p-2 rounded-xl bg-indigo-50 text-indigo-800 font-bold border-l-4 border-indigo-600">11:10 Matemática (Doble)</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: TARDE INTELIGENTE -->
+      <section id="tab-tarde" class="space-y-6 tab-content hidden">
+        <div class="p-6 rounded-2xl bg-gradient-to-r from-purple-950 via-purple-900 to-indigo-950 text-white flex items-center justify-between">
+          <div>
+            <h3 class="font-display font-extrabold text-xl">Plan de la Tarde Adaptado (Salida 12:35)</h3>
+            <p class="text-xs text-purple-200 mt-1">Organiza automáticamente tus tareas, estudio y tu tiempo libre protegido.</p>
+          </div>
+          <button onclick="reorganizarTardeDemo()" class="px-5 py-2.5 rounded-xl bg-emerald-400 text-purple-950 font-bold text-xs shadow-md hover:bg-emerald-300 transition">
+            🔄 Reorganizar mi tarde
+          </button>
+        </div>
+
+        <div class="space-y-3" id="tardeBlocks">
+          <div class="p-4 rounded-2xl bg-white dark:bg-[#1A102F] border border-purple-100 dark:border-purple-900/40 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-extrabold px-3 py-1 bg-purple-100 text-purple-800 rounded-lg">12:35 - 14:00</span>
+              <div>
+                <h4 class="font-bold text-sm">Almuerzo y Descanso Relajado (Protegido)</h4>
+                <p class="text-xs text-gray-500">Música de Romeo Santos / Aventura y desconexión</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold text-purple-600">85 min</span>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-white dark:bg-[#1A102F] border border-blue-200 dark:border-blue-900/40 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-extrabold px-3 py-1 bg-blue-100 text-blue-800 rounded-lg">14:00 - 15:30</span>
+              <div>
+                <h4 class="font-bold text-sm">Bloque de Tareas Prioritarias</h4>
+                <p class="text-xs text-gray-500">Matemática: Ecuaciones Cuadráticas | Lengua: Ensayo</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold text-blue-600">90 min</span>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-white dark:bg-[#1A102F] border border-amber-200 dark:border-amber-900/40 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-extrabold px-3 py-1 bg-amber-100 text-amber-800 rounded-lg">15:30 - 16:30</span>
+              <div>
+                <h4 class="font-bold text-sm">Estudio y Repaso para Examen</h4>
+                <p class="text-xs text-gray-500">Fórmula general y Flashcards SM-2</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold text-amber-600">60 min</span>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-white dark:bg-[#1A102F] border border-cyan-200 dark:border-cyan-900/40 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-extrabold px-3 py-1 bg-cyan-100 text-cyan-800 rounded-lg">16:30 - 17:30</span>
+              <div>
+                <h4 class="font-bold text-sm">Acreditaciones y Maker Lab</h4>
+                <p class="text-xs text-gray-500">Modelado 3D y avance de horas lectivas</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold text-cyan-600">60 min</span>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border-2 border-emerald-400 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-extrabold px-3 py-1 bg-emerald-500 text-purple-950 rounded-lg">17:30 - 19:30</span>
+              <div>
+                <h4 class="font-bold text-sm text-emerald-950 dark:text-emerald-200">Tiempo Libre Protegido para Luzfer ✨</h4>
+                <p class="text-xs text-emerald-800 dark:text-emerald-300">Desbloqueo total: TikTok, Instagram, series y relax garantizado.</p>
+              </div>
+            </div>
+            <span class="text-xs font-extrabold text-emerald-700 dark:text-emerald-300">120 min</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: TAREAS -->
+      <section id="tab-tareas" class="space-y-4 tab-content hidden">
+        <h3 class="font-display font-bold text-lg text-purple-950 dark:text-white">Tareas y Deberes Pendientes</h3>
+        <div class="space-y-2.5">
+          <div class="p-4 rounded-2xl bg-white dark:bg-[#1A102F] border border-purple-100 dark:border-purple-900/40 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" class="w-5 h-5 rounded text-purple-600">
+              <div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800">Matemática</span>
+                <h4 class="font-bold text-sm mt-0.5">Ejercicios de Ecuaciones Cuadráticas (Pág. 45-47)</h4>
+                <p class="text-xs text-gray-500">Entrega: Viernes 07:00 • Prioridad Alta</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold text-rose-500 bg-rose-50 px-2 py-1 rounded-lg">Urgente</span>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-white dark:bg-[#1A102F] border border-purple-100 dark:border-purple-900/40 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" class="w-5 h-5 rounded text-purple-600">
+              <div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-pink-100 text-pink-800">Lengua</span>
+                <h4 class="font-bold text-sm mt-0.5">Ensayo: Crónica de una Muerte Anunciada</h4>
+                <p class="text-xs text-gray-500">Entrega: Próximo Lunes • Prioridad Alta</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-lg">En progreso</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: ACREDITACIONES -->
+      <section id="tab-acreditaciones" class="space-y-4 tab-content hidden">
+        <div class="p-6 rounded-2xl bg-gradient-to-r from-purple-900 to-indigo-900 text-white space-y-3">
+          <div class="flex justify-between items-center">
+            <h3 class="font-display font-extrabold text-lg">Acreditaciones 10mo 'B'</h3>
+            <span class="text-2xl font-extrabold text-emerald-300 font-display">72% Total</span>
+          </div>
+          <div class="w-full bg-black/40 rounded-full h-3">
+            <div class="bg-emerald-400 h-3 rounded-full" style="width: 72%"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+          <div class="p-4 rounded-2xl bg-white dark:bg-[#1A102F] border border-purple-100 dark:border-purple-900/40 space-y-2">
+            <div class="flex justify-between font-bold">
+              <span>Prototipado 3D (Maker Lab)</span>
+              <span class="text-purple-700">14 / 20 hrs</span>
+            </div>
+            <div class="w-full bg-gray-100 dark:bg-purple-950 h-2 rounded-full">
+              <div class="bg-purple-600 h-2 rounded-full" style="width: 70%"></div>
+            </div>
+          </div>
+          <div class="p-4 rounded-2xl bg-white dark:bg-[#1A102F] border border-purple-100 dark:border-purple-900/40 space-y-2">
+            <div class="flex justify-between font-bold">
+              <span>Lectura Crítica</span>
+              <span class="text-purple-700">12 / 15 hrs</span>
+            </div>
+            <div class="w-full bg-gray-100 dark:bg-purple-950 h-2 rounded-full">
+              <div class="bg-purple-600 h-2 rounded-full" style="width: 80%"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: SIMULADOR -->
+      <section id="tab-simulador" class="space-y-4 tab-content hidden">
+        <div class="p-6 rounded-2xl bg-white dark:bg-[#1A102F] border border-purple-100 dark:border-purple-900/40 space-y-4">
+          <h3 class="font-display font-bold text-lg">Simulacro de Examen: Matemática</h3>
+          <p class="text-xs text-gray-500">Pregunta 1 de 3: Álgebra y Ecuaciones Cuadráticas</p>
+
+          <div class="p-4 rounded-xl bg-purple-50 dark:bg-purple-950/40 font-semibold text-sm">
+            ¿Cuáles son las raíces de x² - 5x + 6 = 0?
+          </div>
+
+          <div class="space-y-2 text-xs font-semibold">
+            <button onclick="responderDemo(this, true)" class="w-full text-left p-3 rounded-xl border border-gray-200 dark:border-purple-900/40 hover:bg-purple-50 dark:hover:bg-purple-900/30">
+              A) x = 2 y x = 3
+            </button>
+            <button onclick="responderDemo(this, false)" class="w-full text-left p-3 rounded-xl border border-gray-200 dark:border-purple-900/40 hover:bg-purple-50 dark:hover:bg-purple-900/30">
+              B) x = -2 y x = -3
+            </button>
+            <button onclick="responderDemo(this, false)" class="w-full text-left p-3 rounded-xl border border-gray-200 dark:border-purple-900/40 hover:bg-purple-50 dark:hover:bg-purple-900/30">
+              C) x = 1 y x = 6
+            </button>
+          </div>
+          <div id="simuladorFeedback" class="hidden p-3 rounded-xl text-xs font-bold"></div>
+        </div>
+      </section>
+
+      <!-- TAB 6: FLASHCARDS -->
+      <section id="tab-flashcards" class="space-y-4 tab-content hidden">
+        <h3 class="font-display font-bold text-lg">Repaso Espaciado SM-2</h3>
+        <div onclick="voltearCard()" id="flashcardBox" class="p-8 rounded-3xl bg-white dark:bg-[#1A102F] border-2 border-purple-300 dark:border-purple-800 text-center cursor-pointer min-h-[220px] flex flex-col justify-center items-center select-none shadow-md">
+          <span class="text-[10px] font-extrabold uppercase text-purple-600 tracking-wider mb-2">Haz clic para voltear</span>
+          <h4 id="cardText" class="text-lg font-bold">¿Qué es una metáfora en Lengua y Literatura?</h4>
+        </div>
+      </section>
+
+      <!-- TAB 7: MUSICA -->
+      <section id="tab-musica" class="space-y-4 tab-content hidden">
+        <h3 class="font-display font-bold text-lg">Mis Artistas Favoritos</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center text-xs">
+          <div class="p-4 rounded-2xl bg-white dark:bg-[#1A102F] border border-purple-100 shadow-xs cursor-pointer hover:border-purple-500" onclick="setArtist('Romeo Santos', 'Propuesta Indecente')">
+            <span class="text-3xl block mb-1">👑</span>
+            <span class="font-bold">Romeo Santos</span>
+          </div>
+          <div class="p-4 rounded-2xl bg-white dark:bg-[#1A102F] border border-purple-100 shadow-xs cursor-pointer hover:border-purple-500" onclick="setArtist('Aventura', 'Dile al Amor')">
+            <span class="text-3xl block mb-1">🌹</span>
+            <span class="font-bold">Aventura</span>
+          </div>
+          <div class="p-4 rounded-2xl bg-white dark:bg-[#1A102F] border border-purple-100 shadow-xs cursor-pointer hover:border-purple-500" onclick="setArtist('Karol G', 'PROVENZA')">
+            <span class="text-3xl block mb-1">🌸</span>
+            <span class="font-bold">Karol G</span>
+          </div>
+          <div class="p-4 rounded-2xl bg-white dark:bg-[#1A102F] border border-purple-100 shadow-xs cursor-pointer hover:border-purple-500" onclick="setArtist('Bad Bunny', 'Monaco')">
+            <span class="text-3xl block mb-1">🐰</span>
+            <span class="font-bold">Bad Bunny</span>
+          </div>
+          <div class="p-4 rounded-2xl bg-white dark:bg-[#1A102F] border border-purple-100 shadow-xs cursor-pointer hover:border-purple-500" onclick="setArtist('Rauw Alejandro', 'Todo de Ti')">
+            <span class="text-3xl block mb-1">🦊</span>
+            <span class="font-bold">Rauw Alejandro</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 8: ENFOQUE -->
+      <section id="tab-enfoque" class="space-y-4 tab-content hidden">
+        <div class="p-6 rounded-2xl bg-white dark:bg-[#1A102F] border border-purple-100 dark:border-purple-900/40 space-y-3">
+          <h3 class="font-display font-bold text-lg">Bloqueador de Distracciones</h3>
+          <p class="text-xs text-gray-500">Durante las sesiones de tareas y estudio se bloquean:</p>
+          <div class="flex flex-wrap gap-2 text-xs font-bold">
+            <span class="px-3 py-1.5 rounded-xl bg-purple-100 text-purple-800">🌐 Instagram</span>
+            <span class="px-3 py-1.5 rounded-xl bg-purple-100 text-purple-800">🌐 TikTok</span>
+            <span class="px-3 py-1.5 rounded-xl bg-purple-100 text-purple-800">🎮 Roblox</span>
+            <span class="px-3 py-1.5 rounded-xl bg-purple-100 text-purple-800">🎮 Discord & Steam</span>
+          </div>
+          <p class="text-[11px] text-emerald-600 font-bold mt-2">✓ Al llegar las 17:30 (Tiempo Libre Protegido) todo se desbloquea automáticamente.</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    let isFlipped = false;
+    let isPlaying = true;
+    let isFocus = false;
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      const target = document.getElementById('tab-' + tabId);
+      if (target) target.classList.remove('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        if (btn.getAttribute('data-tab') === tabId) {
+          btn.classList.add('bg-purple-700', 'text-white', 'shadow-xs');
+          btn.classList.remove('text-gray-600', 'dark:text-gray-300');
+        } else {
+          btn.classList.remove('bg-purple-700', 'text-white', 'shadow-xs');
+          btn.classList.add('text-gray-600', 'dark:text-gray-300');
+        }
+      });
+    }
+
+    function toggleMusic() {
+      isPlaying = !isPlaying;
+      document.getElementById('musicPlayBtn').innerText = isPlaying ? '⏸' : '▶';
+    }
+
+    function setArtist(artist, song) {
+      document.getElementById('currentSongArtist').innerText = artist;
+      document.getElementById('currentSongTitle').innerText = song;
+      isPlaying = true;
+      document.getElementById('musicPlayBtn').innerText = '⏸';
+    }
+
+    function toggleFocus() {
+      isFocus = !isFocus;
+      const b = document.getElementById('focusBadge');
+      if (isFocus) {
+        b.className = 'flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition shadow-xs bg-emerald-400 text-purple-950 ring-2 ring-emerald-300';
+        document.getElementById('focusText').innerText = 'Enfoque Activo (45 min)';
+      } else {
+        b.className = 'flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition shadow-xs bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-200 border border-purple-300';
+        document.getElementById('focusText').innerText = 'Activar Enfoque';
+      }
+    }
+
+    function toggleDark() {
+      document.documentElement.classList.toggle('dark');
+    }
+
+    function voltearCard() {
+      isFlipped = !isFlipped;
+      const t = document.getElementById('cardText');
+      if (isFlipped) {
+        t.innerText = 'Figura retórica que traslada el sentido de una palabra a otra mediante una comparación implícita.';
+        t.className = 'text-base font-semibold text-emerald-600 dark:text-emerald-400';
+      } else {
+        t.innerText = '¿Qué es una metáfora en Lengua y Literatura?';
+        t.className = 'text-lg font-bold text-gray-900 dark:text-white';
+      }
+    }
+
+    function responderDemo(btn, esCorrecto) {
+      const fb = document.getElementById('simuladorFeedback');
+      fb.classList.remove('hidden');
+      if (esCorrecto) {
+        fb.className = 'p-3 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
+        fb.innerText = '¡Excelente, Luzfer! ✓ (x - 2)(x - 3) = 0, por lo que las raíces son 2 y 3.';
+      } else {
+        fb.className = 'p-3 rounded-xl text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300';
+        fb.innerText = 'Respuesta incorrecta. Recuerda buscar dos números que multiplicados den 6 y sumados den -5.';
+      }
+    }
+
+    function reorganizarTardeDemo() {
+      const b = document.getElementById('tardeBlocks');
+      b.style.opacity = '0.4';
+      setTimeout(() => {
+        b.style.opacity = '1';
+        alert('¡Tarde reorganizada automáticamente según tus tareas pendientes y exámenes de esta semana!');
+      }, 300);
+    }
+
+    // Descarga directa a escritorio en un solo clic
+    function descargarHtmlOffline() {
+      const htmlContent = document.documentElement.outerHTML;
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'LUZFER_Escritorio.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
+    }
+  </script>
+</body>
 </html>
