@@ -1,0 +1,28 @@
+appId: com.luzfer.app
+productName: LUZFER
+copyright: Copyright © 2026-2027 Luz Fernanda & Paulo VI
+directories:
+  output: release
+  buildResources: build
+files:
+  - dist/**/*
+  - dist-electron/**/*
+  - node_modules/**/*
+  - package.json
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+  icon: build/icon.ico
+  requestedExecutionLevel: asInvoker
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: LUZFER
+  artifactName: ${productName}-Setup-${version}.${ext}

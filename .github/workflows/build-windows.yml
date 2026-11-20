@@ -1,0 +1,37 @@
+name: Compilar Instalador Windows (.exe) LUZFER
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Compilar Frontend y Electron
+        run: npm run build
+
+      - name: Empaquetar Instalador .exe para Windows
+        run: npx electron-builder --win nsis portable
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Subir artefacto Instalador Windows (.exe)
+        uses: actions/upload-artifact@v4
+        with:
+          name: LUZFER-Windows-Installer
+          path: release/*.exe

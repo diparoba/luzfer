@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "LUZFER Companion — Bloqueador de Enfoque",
+  "version": "1.0.0",
+  "description": "Extensión compañera para LUZFER. Bloquea distracciones durante las sesiones de estudio de Luz Fernanda.",
+  "permissions": [
+    "declarativeNetRequest",
+    "storage",
+    "alarms"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:3883/*",
+    "*://*.instagram.com/*",
+    "*://*.tiktok.com/*",
+    "*://*.roblox.com/*",
+    "*://*.twitch.tv/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "LUZFER Enfoque Activo"
+  }
+}
